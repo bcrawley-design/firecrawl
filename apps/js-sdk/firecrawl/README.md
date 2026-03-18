@@ -94,6 +94,13 @@ console.log(preview.context);  // optional context like sampled URL count
 
 `crawlParamsPreview` remains available for backwards compatibility and returns only the params object.
 
+For a local end-to-end demo (with a mock `/v2/crawl/params-preview` server), run:
+
+```bash
+npm run build
+node examples/crawl-params-preview-detailed-demo.mjs
+```
+
 ### Extracting structured data from URLs
 
 Use `extract` with a prompt and schema. Zod schemas are supported directly.
