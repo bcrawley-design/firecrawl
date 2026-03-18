@@ -491,6 +491,17 @@ export interface CrawlResponse {
   url: string;
 }
 
+export interface CrawlParamsPreviewContext {
+  websiteUrlCount: number;
+  sampledWebsiteUrls: string[];
+}
+
+export interface CrawlParamsPreviewResult {
+  params: Record<string, unknown>;
+  warning?: string;
+  context?: CrawlParamsPreviewContext;
+}
+
 export interface CrawlJob {
   id: string;
   status: 'scraping' | 'completed' | 'failed' | 'cancelled';

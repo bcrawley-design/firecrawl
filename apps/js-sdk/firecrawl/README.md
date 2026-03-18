@@ -77,6 +77,30 @@ To check the status of a crawl job with error handling, use the `getCrawlStatus`
 const status = await app.getCrawlStatus(id);
 ```
 
+### Preview crawl params with explainability context
+
+Use `crawlParamsPreviewDetailed` to turn a natural-language crawl prompt into normalized crawl params while also returning optional warning/context metadata you can show in product UI.
+
+```js
+const preview = await app.crawlParamsPreviewDetailed(
+  'https://docs.firecrawl.dev',
+  'Crawl docs and changelog pages only'
+);
+
+console.log(preview.params);   // normalized crawl params
+console.log(preview.warning);  // optional warning text
+console.log(preview.context);  // optional context like sampled URL count
+```
+
+`crawlParamsPreview` remains available for backwards compatibility and returns only the params object.
+
+For a local end-to-end demo (with a mock `/v2/crawl/params-preview` server), run:
+
+```bash
+npm run build
+node examples/crawl-params-preview-detailed-demo.mjs
+```
+
 ### Extracting structured data from URLs
 
 Use `extract` with a prompt and schema. Zod schemas are supported directly.
