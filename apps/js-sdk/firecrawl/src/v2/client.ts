@@ -10,6 +10,7 @@ import {
   getCrawlErrors,
   getActiveCrawls,
   crawlParamsPreview,
+  crawlParamsPreviewDetailed,
 } from "./methods/crawl";
 import {
   startBatchScrape,
@@ -50,6 +51,7 @@ import type {
   BrowserExecuteResponse,
   BrowserDeleteResponse,
   BrowserListResponse,
+  CrawlParamsPreviewResult,
 } from "./types";
 import { Watcher } from "./watcher";
 import type { WatcherOptions } from "./watcher";
@@ -206,6 +208,16 @@ export class FirecrawlClient {
    */
   async crawlParamsPreview(url: string, prompt: string): Promise<Record<string, unknown>> {
     return crawlParamsPreview(this.http, url, prompt);
+  }
+
+  /**
+   * Preview normalized crawl parameters with explainability metadata.
+   * @param url Root URL.
+   * @param prompt Natural-language instruction.
+   * @returns Structured preview response with `params` and optional `warning/context`.
+   */
+  async crawlParamsPreviewDetailed(url: string, prompt: string): Promise<CrawlParamsPreviewResult> {
+    return crawlParamsPreviewDetailed(this.http, url, prompt);
   }
 
   // Batch
@@ -396,4 +408,3 @@ export class FirecrawlClient {
 }
 
 export default FirecrawlClient;
-

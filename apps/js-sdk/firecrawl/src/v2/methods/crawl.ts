@@ -5,6 +5,7 @@ import {
   type CrawlResponse,
   type Document,
   type CrawlOptions,
+  type CrawlParamsPreviewResult,
   type PaginationConfig,
   JobTimeoutError,
   SdkError,
@@ -185,14 +186,43 @@ export async function getActiveCrawls(http: HttpClient): Promise<ActiveCrawlsRes
 }
 
 export async function crawlParamsPreview(http: HttpClient, url: string, prompt: string): Promise<Record<string, unknown>> {
+  const preview = await crawlParamsPreviewDetailed(http, url, prompt);
+  if (preview.warning) {
+    return { ...preview.params, warning: preview.warning };
+  }
+  return preview.params;
+}
+
+export async function crawlParamsPreviewDetailed(http: HttpClient, url: string, prompt: string): Promise<CrawlParamsPreviewResult> {
   if (!url || !url.trim()) throw new Error("URL cannot be empty");
   if (!prompt || !prompt.trim()) throw new Error("Prompt cannot be empty");
   try {
-    const res = await http.post<{ success: boolean; data?: Record<string, unknown>; warning?: string }>("/v2/crawl/params-preview", { url: url.trim(), prompt });
+    const res = await http.post<{
+      success: boolean;
+      data?: Record<string, unknown>;
+      warning?: string;
+      context?: { websiteUrlCount?: number; sampledWebsiteUrls?: string[] };
+    }>("/v2/crawl/params-preview", { url: url.trim(), prompt });
     if (res.status !== 200 || !res.data?.success) throwForBadResponse(res, "crawl params preview");
-    const data = res.data.data || {};
-    if (res.data.warning) (data as any).warning = res.data.warning;
-    return data;
+
+    const preview: CrawlParamsPreviewResult = {
+      params: res.data.data || {},
+    };
+
+    if (res.data.warning) {
+      preview.warning = res.data.warning;
+    }
+
+    if (res.data.context) {
+      preview.context = {
+        websiteUrlCount: Number(res.data.context.websiteUrlCount ?? 0),
+        sampledWebsiteUrls: Array.isArray(res.data.context.sampledWebsiteUrls)
+          ? res.data.context.sampledWebsiteUrls
+          : [],
+      };
+    }
+
+    return preview;
   } catch (err: any) {
     if (err?.isAxiosError) return normalizeAxiosError(err, "crawl params preview");
     throw err;
